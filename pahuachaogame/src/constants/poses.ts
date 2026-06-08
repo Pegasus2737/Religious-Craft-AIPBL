@@ -416,17 +416,17 @@ export const ALL_SEQUENCES: PoseSequence[] = [
   // 章節 1：鄭元和（基礎打七響篇）
   {
     id: 0,
-    name: '雙手合拍與拍腿',
-    description: '學習最基礎的節拍：雙手胸前合擊，接著右手拍右腿、左手拍左腿。',
+    name: '合拍與拍胸',
+    description: '學習上半身基礎：雙手胸前合拍，接著右手拍左胸、左手拍右胸。',
     player: 1,
-    poses: [CLAP, PAT_THIGH_R, PAT_THIGH_L]
+    poses: [CLAP, PAT_CHEST_R, PAT_CHEST_L]
   },
   {
     id: 1,
-    name: '交錯拍肩',
-    description: '學習肢體交錯：右手拍左肩、左手拍右肩。',
+    name: '向上滑與拍腿',
+    description: '學習手臂伸展與下盤動作：右手向上滑、左手向上滑，接著拍右腿、左腿。',
     player: 1,
-    poses: [CROSS_SHOULDER_R, CROSS_SHOULDER_L]
+    poses: [SLIDE_UP_R, SLIDE_UP_L, PAT_THIGH_R, PAT_THIGH_L]
   },
   {
     id: 2,
