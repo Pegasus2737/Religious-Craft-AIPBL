@@ -128,6 +128,11 @@ export function generateMockTargetLandmarks(userLandmarks: NormalizedLandmark[],
       : 0.5;
     mockTargetLandmarks[15].x = midX;
     mockTargetLandmarks[16].x = midX;
+  } else if (poseName.includes('向上滑')) {
+    mockTargetLandmarks[15].y = 0.2; // 高於肩膀
+    mockTargetLandmarks[16].y = 0.2;
+    if (poseName.includes('左手')) mockTargetLandmarks[16].y = 0.5; // 右手休息
+    if (poseName.includes('右手')) mockTargetLandmarks[15].y = 0.5; // 左手休息
   }
 
   return mockTargetLandmarks;

@@ -266,6 +266,54 @@ const PAT_CHEST_L: PoseDefinition = {
   ]
 };
 
+const SLIDE_UP_R: PoseDefinition = {
+    name: '右手向上滑',
+    player: 1,
+    description: '右手向上滑動，手臂呈現半彎',
+    targetAngles: { rightElbow: 100 },
+    conditions: [
+    {
+      description: '右手腕高於肩膀',
+      errorMessage: '右手舉得不夠高，試著向上滑動',
+      evaluate: (lm) => {
+        return lm[16].y < lm[12].y - 0.1 ? 1 : closeness(lm[16].y, lm[12].y - 0.1, 0.2);
+      }
+    },
+    {
+      description: '手臂保持半彎',
+      errorMessage: '手臂要保持微彎，不要完全伸直',
+      evaluate: (lm) => {
+        const elbow = angle3(lm[12], lm[14], lm[16]);
+        return closeness(elbow, 100, 40);
+      }
+    }
+  ]
+};
+
+const SLIDE_UP_L: PoseDefinition = {
+    name: '左手向上滑',
+    player: 1,
+    description: '左手向上滑動，手臂呈現半彎',
+    targetAngles: { leftElbow: 100 },
+    conditions: [
+    {
+      description: '左手腕高於肩膀',
+      errorMessage: '左手舉得不夠高，試著向上滑動',
+      evaluate: (lm) => {
+        return lm[15].y < lm[11].y - 0.1 ? 1 : closeness(lm[15].y, lm[11].y - 0.1, 0.2);
+      }
+    },
+    {
+      description: '手臂保持半彎',
+      errorMessage: '手臂要保持微彎，不要完全伸直',
+      evaluate: (lm) => {
+        const elbow = angle3(lm[11], lm[13], lm[15]);
+        return closeness(elbow, 100, 40);
+      }
+    }
+  ]
+};
+
 // === 花婆新增元素 ===
 const POINT_MOLE_RIGHT: PoseDefinition = {
     name: '婆姐點痣(右)',
@@ -383,12 +431,12 @@ export const ALL_SEQUENCES: PoseSequence[] = [
   {
     id: 2,
     name: '完整「打七響」',
-    description: '經典七響串聯：合拍 → 右胸 → 左胸 → 右肩 → 左肩 → 右腿 → 左腿。',
+    description: '新版七響串聯：合拍 → 右手拍胸 → 左手拍胸 → 右手向上滑 → 左手向上滑 → 右手拍腿 → 左手拍腿。',
     player: 1,
     poses: [
       CLAP, 
       PAT_CHEST_R, PAT_CHEST_L, 
-      CROSS_SHOULDER_R, CROSS_SHOULDER_L, 
+      SLIDE_UP_R, SLIDE_UP_L, 
       PAT_THIGH_R, PAT_THIGH_L
     ]
   },
@@ -423,6 +471,7 @@ export const ALL_POSES = [
   PAT_THIGH_R, PAT_THIGH_L, 
   CROSS_SHOULDER_R, CROSS_SHOULDER_L, 
   PAT_CHEST_R, PAT_CHEST_L,
+  SLIDE_UP_R, SLIDE_UP_L,
   POINT_MOLE_RIGHT, POINT_MOLE_LEFT, TWIST_HIP_LEFT, FLING_HANKY_RIGHT,
   ...SOLO_POSES
 ];
