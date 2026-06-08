@@ -12,8 +12,8 @@ export default function SingleHome({ completedLevels, onSelectLevel, onBackToMod
     {
       title: '章節 1：鄭元和（基礎打七響篇）',
       levels: [
-        { id: 0, title: '1-1 雙手合拍與拍腿', desc: '學習最基礎的節拍，手眼協調', req: [] },
-        { id: 1, title: '1-2 交錯拍肩', desc: '學習肢體交錯與律動', req: [0] },
+        { id: 0, title: '1-1 合拍與拍胸', desc: '學習上半身基礎，節拍與手眼協調', req: [] },
+        { id: 1, title: '1-2 向上滑與拍腿', desc: '學習手臂伸展與下盤動作', req: [0] },
         { id: 2, title: '1-3 完整「打七響」', desc: '挑戰將陣頭經典動作串聯', req: [1] },
       ]
     },
