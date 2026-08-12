@@ -13,9 +13,11 @@ import Lobby from './components/multiplayer/Lobby'
 import TeamReady from './components/multiplayer/TeamReady'
 import GameView from './components/multiplayer/GameView'
 import Summary from './components/common/Summary'
+import KnowledgeGuide from './components/knowledge/KnowledgeGuide'
 
 import { PLAYERS_DB, type PlayerData } from './constants/players'
 import { ALL_SEQUENCES } from './constants/poses'
+import { PERXONA_PREVIEW_PARAM } from './constants/perxona'
 
 type View =
   | 'mode-select'
@@ -30,9 +32,16 @@ type View =
   | 'multi-team'
   | 'multi-game'
   | 'multi-summary'
+  // Hidden Perxona preview; not linked from the public home screen yet.
+  | 'knowledge-guide'
+
+function getInitialView(): View {
+  const params = new URLSearchParams(window.location.search)
+  return params.get(PERXONA_PREVIEW_PARAM) === '1' ? 'knowledge-guide' : 'mode-select'
+}
 
 export default function App() {
-  const [view, setView] = useState<View>('mode-select')
+  const [view, setView] = useState<View>(getInitialView)
 
   // ── Single Player State ──
   const [completedLevels, setCompletedLevels] = useState<number[]>([])
@@ -60,6 +69,17 @@ export default function App() {
         <ModeSelect
           onSelectSingle={() => setView('single-home')}
           onSelectMulti={() => setView('multi-login')}
+        />
+      )}
+
+      {view === 'knowledge-guide' && (
+        <KnowledgeGuide
+          onBack={() => {
+            const url = new URL(window.location.href)
+            url.searchParams.delete(PERXONA_PREVIEW_PARAM)
+            window.history.replaceState(null, '', url)
+            setView('mode-select')
+          }}
         />
       )}
 
@@ -169,7 +189,7 @@ export default function App() {
           difficulty={difficulty}
           setDifficulty={setDifficulty}
           gameMode={gameMode}
-          setGameMode={setGameMode as any}
+          setGameMode={setGameMode}
           onBackToModeSelect={() => setView('mode-select')}
         />
       )}
@@ -216,7 +236,7 @@ export default function App() {
           song={selectedSong}
           difficulty={difficulty}
           gameMode={gameMode}
-          multiReport={multiReport as any}
+          multiReport={multiReport}
           p1={p1}
           p2={p2}
           onRestart={() => setView('multi-game')}
