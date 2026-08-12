@@ -4,6 +4,8 @@ import { PoseDetector } from '../../core/PoseDetector';
 import { evaluatePose, generateMockTargetLandmarks } from '../../core/PoseEvaluator';
 import { PoseRecorder } from '../../core/PoseRecorder';
 import { ALL_SEQUENCES, type NormalizedLandmark, type PoseDefinition } from '../../constants/poses';
+import { DEMO_VIDEOS } from '../../constants/demoVideos';
+import DemoVideo from './DemoVideo';
 
 export interface PracticeResult {
   score: number;
@@ -36,37 +38,10 @@ export default function Practice({ levelId, onFinish, onBack }: Props) {
   // 目前的目標連續動作
   const targetSequence = ALL_SEQUENCES[levelId];
   const targetPose = targetSequence?.poses[poseIndex];
+  const demoVideo = DEMO_VIDEOS[levelId];
 
   const PASS_THRESHOLD = 60;
   const REQUIRED_HOLD_FRAMES = 10;
-
-  useEffect(() => {
-    // 啟動相機與追蹤
-    const initDetector = async () => {
-      detectorRef.current = new PoseDetector({
-        numPoses: 1,
-        onResults: (results) => {
-          if (results.poses.length > 0) {
-            handlePoseDetect(results.poses[0].landmarks);
-            drawSkeletons(results.poses[0].landmarks);
-          }
-        }
-      });
-
-      await detectorRef.current.initialize();
-      if (videoRef.current) {
-        detectorRef.current.start(videoRef.current);
-      }
-    };
-
-    initDetector();
-
-    return () => {
-      if (detectorRef.current) {
-        detectorRef.current.stop();
-      }
-    };
-  }, []);
 
   // 使用 ref 儲存 mutable 遊戲狀態，避免 MediaPipe callback 裡讀到 stale state
   const phaseRef = useRef<'LEARNING'|'CONTINUOUS'>('LEARNING');
@@ -206,7 +181,7 @@ export default function Practice({ levelId, onFinish, onBack }: Props) {
     }
   }, [levelId]);
 
-  const drawSkeletons = (userLandmarks: NormalizedLandmark[]) => {
+  const drawSkeletons = useCallback((userLandmarks: NormalizedLandmark[]) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -277,7 +252,45 @@ export default function Practice({ levelId, onFinish, onBack }: Props) {
         ctx.fill();
       }
     });
-  };
+  }, [levelId]);
+
+  useEffect(() => {
+    // 啟動相機與追蹤；依賴穩定 callback，避免偵測器讀到舊關卡狀態。
+    let cancelled = false;
+    const detector = new PoseDetector({
+      numPoses: 1,
+      onResults: (results) => {
+        if (results.poses.length > 0) {
+          handlePoseDetect(results.poses[0].landmarks);
+          drawSkeletons(results.poses[0].landmarks);
+        }
+      }
+    });
+    detectorRef.current = detector;
+
+    const initDetector = async () => {
+      await detector.initialize();
+      if (cancelled) {
+        detector.stop();
+        return;
+      }
+      if (videoRef.current) {
+        detector.start(videoRef.current);
+      }
+    };
+
+    void initDetector().catch((error) => {
+      console.error('Failed to initialize pose detector:', error);
+    });
+
+    return () => {
+      cancelled = true;
+      detector.stop();
+      if (detectorRef.current === detector) {
+        detectorRef.current = null;
+      }
+    };
+  }, [drawSkeletons, handlePoseDetect]);
 
   return (
     <div className="w-full h-full bg-black relative flex flex-col">
@@ -314,6 +327,8 @@ export default function Practice({ levelId, onFinish, onBack }: Props) {
           height={720} 
           className="absolute inset-0 w-full h-full object-cover z-10" 
         />
+
+        {demoVideo && <DemoVideo demo={demoVideo} />}
       </div>
 
       {/* 底部 UI */}
